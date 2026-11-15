@@ -55,6 +55,66 @@ export function searchLink(name: string): string {
   return `https://www.google.com/search?q=${encodeURIComponent(`receita ${name}`)}`;
 }
 
+/** Página de receita escolhida para cada sugestão (conferida). Sem entrada = link de busca. */
+export const RECIPE_LINKS: Record<string, string> = {
+  'bank-omelete': 'https://www.tudogostoso.com.br/receita/404-omelete-de-legumes.html',
+  'bank-lasanha-berinjela': 'https://panelinha.com.br/receita/lasanha-de-berinjela-com-molho-de-tomate-caseiro',
+  'bank-sopa-legumes': 'https://panelinha.com.br/receita/sopa-de-legumes',
+  'bank-alho-oleo': 'https://panelinha.com.br/receita/espaguete-ao-alho-e-oleo',
+  'bank-sugo': 'https://panelinha.com.br/receita/macarrao-com-molho-de-tomate-rapido',
+  'bank-arroz-feijao-ovo': 'https://panelinha.com.br/receita/feijao-caseiro',
+  'bank-grao-bico': 'https://panelinha.com.br/receita/salada-rapida-de-grao-de-bico',
+  'bank-nhoque': 'https://panelinha.com.br/receita/nhoque-batata',
+  'bank-cuscuz': 'https://panelinha.com.br/receita/cuscuz-milho-com-ovo-poche',
+  'bank-tapioca': 'https://panelinha.com.br/receita/tapioca-para-um',
+  'bank-crepioca': 'https://www.tudogostoso.com.br/receita/172128-crepioca.html',
+  'bank-sanduiche-atum': 'https://panelinha.com.br/receita/sanduiche-de-atum',
+  'bank-lentilha': 'https://panelinha.com.br/receita/arroz-com-lentilhas',
+  'bank-pure-abobora': 'https://panelinha.com.br/receita/pure-rustico-de-abobora',
+  'bank-strogonoff-frango': 'https://panelinha.com.br/receita/estrogonofe-de-frango',
+  'bank-frango-xadrez': 'https://panelinha.com.br/receita/frango-xadrez',
+  'bank-escondidinho': 'https://www.tudogostoso.com.br/receita/115772-escondidinho-de-aipim-com-carne-moida.html',
+  'bank-arroz-forno': 'https://www.tudogostoso.com.br/receita/13293-arroz-de-forno-com-frango-da-elu.html',
+  'bank-panqueca-frango': 'https://www.tudogostoso.com.br/receita/296953-panqueca-de-frango.html',
+  'bank-carne-moida-batata': 'https://www.tudogostoso.com.br/receita/131598-carne-moida-com-batata.html',
+  'bank-frango-assado': 'https://www.tudogostoso.com.br/receita/299759-coxa-e-sobrecoxa-de-frango-ao-forno-com-limao-e-batata.html',
+  'bank-torta-frango': 'https://www.tudogostoso.com.br/receita/158819-torta-de-frango-de-liquidificador.html',
+  'bank-wrap-frango': 'https://www.receiteria.com.br/receita/wrap-de-frango/',
+  'bank-risoto-frango': 'https://www.tudogostoso.com.br/receita/147209-risoto-de-frango.html',
+  'bank-berinjela-recheada': 'https://www.tudogostoso.com.br/receita/6896-berinjela-recheada-com-carne-moida-e-tomate-seco.html',
+  'bank-yakisoba': 'https://www.tudogostoso.com.br/receita/62849-yakissoba-de-frango.html',
+  'bank-misto-forno': 'https://www.tudogostoso.com.br/receita/318779-misto-quente-de-forno.html',
+  'bank-pure-frango': 'https://www.tudogostoso.com.br/receita/113426-frango-desfiado-com-pure-de-batatas.html',
+  'bank-bife-acebolado': 'https://www.tudogostoso.com.br/receita/166659-bife-acebolado.html',
+  'bank-tilapia': 'https://www.tudogostoso.com.br/receita/121953-file-de-tilapia-assada-com-legumes.html',
+  'bank-carne-panela-batata': 'https://www.tudogostoso.com.br/receita/303407-carne-de-panela-com-batata-e-cenoura.html',
+  'bank-feijao-tropeiro': 'https://www.receiteria.com.br/receita/feijao-tropeiro-com-couve/',
+};
+
+export function bankLink(id: string, name: string): string {
+  return RECIPE_LINKS[id] ?? searchLink(name);
+}
+
+/**
+ * Troca o link de busca pela página escolhida nas sugestões que ainda usam a busca.
+ * Link que você colou na receita não é alterado.
+ */
+export async function applyBankLinks(db: MesaDB): Promise<number> {
+  const now = Date.now();
+  let n = 0;
+  await db.transaction('rw', db.recipes, async () => {
+    for (const r of await db.recipes.where('id').startsWith('bank-').toArray()) {
+      const target = RECIPE_LINKS[r.id];
+      if (!target || r.deleted) continue;
+      if (r.link && r.link !== searchLink(r.name)) continue;
+      if (r.link === target) continue;
+      await db.recipes.put({ ...r, link: target, updatedAt: now });
+      n++;
+    }
+  });
+  return n;
+}
+
 export const BANK: BankRecipe[] = [
   // ── Econômicas ($) ──
   { id: 'bank-omelete', name: 'Omelete de legumes', emoji: '🍳', cost: 'baixo', items: ['Ovo', 'Tomate', 'Cebola', 'Cebolinha', 'Queijo muçarela'] },
@@ -155,7 +215,7 @@ export async function loadBank(db: MesaDB): Promise<BankResult> {
         if (note) item.note = note;
         items.push(item);
       }
-      const recipe: Recipe = { id: b.id, name: b.name, emoji: b.emoji, cost: b.cost, mealType: b.meal ?? 'ambos', items, link: searchLink(b.name), updatedAt: now };
+      const recipe: Recipe = { id: b.id, name: b.name, emoji: b.emoji, cost: b.cost, mealType: b.meal ?? 'ambos', items, link: bankLink(b.id, b.name), updatedAt: now };
       await db.recipes.put(recipe);
       result.recipesAdded++;
     }

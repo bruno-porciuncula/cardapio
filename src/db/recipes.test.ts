@@ -80,3 +80,22 @@ describe('banco de receitas', () => {
     expect(await bankPending(db)).toBe(0);
   });
 });
+
+describe('links das sugestões', () => {
+  it('troca só o link de busca; link colado por você fica', async () => {
+    const { RECIPE_LINKS, applyBankLinks, loadBank: lb, searchLink } = await import('./bank');
+    await lb(db);
+    const ids = Object.keys(RECIPE_LINKS);
+    if (!ids.length) return;
+    const [a, b] = ids;
+    // simula a versão anterior: link de busca
+    for (const id of [a, b]) {
+      const r = (await db.recipes.get(id))!;
+      await db.recipes.put({ ...r, link: searchLink(r.name) });
+    }
+    await db.recipes.update(b, { link: 'https://minha-receita.example/b' });
+    await applyBankLinks(db);
+    expect((await db.recipes.get(a))!.link).toBe(RECIPE_LINKS[a]);
+    expect((await db.recipes.get(b))!.link).toBe('https://minha-receita.example/b');
+  });
+});

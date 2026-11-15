@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { MesaDB } from './db';
 import { ensureDefaults } from './seed';
 import { loadExample } from './example';
-import { BANK, loadBank } from './bank';
+import { BANK, RECIPE_LINKS, loadBank } from './bank';
 import { PORTIONS, applyPortions } from './portions';
 import { addDish } from './plan';
 import { normalize } from '../lib/text';
@@ -28,7 +28,8 @@ describe('quantidades para 6 pratos', () => {
     for (const b of BANK) {
       const r = (await db.recipes.get(b.id))!;
       expect(r.servings, b.id).toBe(6);
-      expect(r.link, b.id).toMatch(/^https:\/\/www\.google\.com\/search\?q=receita/);
+      expect(r.link, b.id).toBe(RECIPE_LINKS[b.id]);
+      expect(r.link, b.id).toMatch(/^https:\/\/(www\.)?(panelinha|tudogostoso|receiteria)\.com\.br\//);
       expect(r.items.every((i) => i.quantity != null && i.unit), `${b.id} sem quantidade`).toBe(true);
     }
   });

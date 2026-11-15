@@ -6,6 +6,7 @@ import { App } from './app';
 import { db, requestPersistence } from './db/db';
 import { ensureDefaults } from './db/seed';
 import { startAutoSync } from './db/sync';
+import { applyBankLinks } from './db/bank';
 
 // No Android, o Chrome concede automaticamente quando o app está instalado.
 requestPersistence().catch(() => {});
@@ -24,4 +25,6 @@ ensureDefaults(db)
   .finally(() => {
     render(<App />, document.getElementById('app')!);
     startAutoSync(db);
+    // Sugestões que ainda usam o link de busca passam para a página de receita escolhida.
+    applyBankLinks(db).catch(() => {});
   });

@@ -13,7 +13,7 @@ import type { MesaDB } from './db';
 import type { Ingredient, Recipe, RecipeItem } from './types';
 import { makeSnapshot } from './plan';
 import { guessCategory, ingredientIndex } from './recipes';
-import { searchLink } from './bank';
+import { bankLink } from './bank';
 import { normalize } from '../lib/text';
 
 export const DEFAULT_SERVINGS = 6;
@@ -178,7 +178,7 @@ export async function applyPortions(db: MesaDB, fromDate: string): Promise<Porti
       }
 
       if (recipe.servings == null) changed = true;
-      const link = recipe.link ?? (recipe.id.startsWith('bank-') ? searchLink(recipe.name) : undefined);
+      const link = recipe.link ?? (recipe.id.startsWith('bank-') ? bankLink(recipe.id, recipe.name) : undefined);
       if (link !== recipe.link) changed = true;
       if (!changed) continue;
       const next: Recipe = { ...recipe, items, servings: recipe.servings ?? DEFAULT_SERVINGS, updatedAt: now };
