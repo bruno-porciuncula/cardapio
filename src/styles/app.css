@@ -772,3 +772,13 @@ a { color: inherit; }
   .form-card, .form-actions { max-width: 720px; }
   .btn-new { max-width: 320px; }
 }
+
+/* Rende / link */
+.recipe-link { align-self: stretch; justify-content: space-between; background: var(--saffron-soft); border-color: transparent; color: #7A5310; text-decoration: none; }
+.recipe-link:hover { background: #FFE7B0; }
+.form-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: end; }
+.field-small input { width: 100%; }
+.input-suffix { display: flex; align-items: center; gap: 6px; }
+.input-suffix input { width: 64px !important; text-align: center; }
+.input-suffix span { color: var(--muted); font-size: 14px; }
+@media (max-width: 420px) { .form-row { grid-template-columns: 1fr; } }

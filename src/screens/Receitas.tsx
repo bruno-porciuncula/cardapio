@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { db } from '../db/db';
 import { bankPending, loadBank } from '../db/bank';
+import { applyPortions } from '../db/portions';
 import type { Cost } from '../db/types';
 import { navigate, useLive } from '../lib/hooks';
 import { collator, normalize } from '../lib/text';
@@ -53,9 +54,9 @@ export function Receitas() {
           <span class="empty-emoji">📚</span>
           <div>
             <strong>{data.pending} receitas sugeridas</strong>
-            <p class="muted">Pratos no estilo dos seus cardápios, já com a tag de custo. Você edita ou apaga depois.</p>
+            <p class="muted">Pratos no estilo dos seus cardápios, com quantidades para 6 pratos, tag de custo e link do modo de preparo.</p>
           </div>
-          <button class="btn" disabled={loading} onClick={async () => { setLoading(true); await loadBank(db); setLoading(false); }}>
+          <button class="btn" disabled={loading} onClick={async () => { setLoading(true); await loadBank(db); await applyPortions(db, current); setLoading(false); }}>
             {loading ? 'Adicionando…' : 'Adicionar'}
           </button>
         </div>

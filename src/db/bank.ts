@@ -50,6 +50,11 @@ const NEW_INGREDIENTS: Record<string, { cat: string; aliases?: string[] }> = {
   'Couve': { cat: 'hortifruti' },
 };
 
+/** Link de busca do modo de preparo (sempre funciona; dá para trocar por um link específico em Editar). */
+export function searchLink(name: string): string {
+  return `https://www.google.com/search?q=${encodeURIComponent(`receita ${name}`)}`;
+}
+
 export const BANK: BankRecipe[] = [
   // ── Econômicas ($) ──
   { id: 'bank-omelete', name: 'Omelete de legumes', emoji: '🍳', cost: 'baixo', items: ['Ovo', 'Tomate', 'Cebola', 'Cebolinha', 'Queijo muçarela'] },
@@ -150,7 +155,7 @@ export async function loadBank(db: MesaDB): Promise<BankResult> {
         if (note) item.note = note;
         items.push(item);
       }
-      const recipe: Recipe = { id: b.id, name: b.name, emoji: b.emoji, cost: b.cost, mealType: b.meal ?? 'ambos', items, updatedAt: now };
+      const recipe: Recipe = { id: b.id, name: b.name, emoji: b.emoji, cost: b.cost, mealType: b.meal ?? 'ambos', items, link: searchLink(b.name), updatedAt: now };
       await db.recipes.put(recipe);
       result.recipesAdded++;
     }

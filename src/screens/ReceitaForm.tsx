@@ -20,7 +20,7 @@ const emptyItem = (): DraftItem => ({ name: '', quantity: null, unit: null });
 /** Criar ou editar uma receita: emoji, nome, refeição, custo e ingredientes. */
 export function ReceitaForm({ id }: { id?: string }) {
   const isNew = !id || id === 'nova';
-  const [draft, setDraft] = useState<RecipeDraft | null>(isNew ? { name: '', mealType: 'ambos', items: [emptyItem(), emptyItem(), emptyItem()] } : null);
+  const [draft, setDraft] = useState<RecipeDraft | null>(isNew ? { name: '', mealType: 'ambos', servings: 6, items: [emptyItem(), emptyItem(), emptyItem()] } : null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -105,6 +105,22 @@ export function ReceitaForm({ id }: { id?: string }) {
           ))}
         </div>
 
+        <div class="form-row">
+          <label class="field field-small">
+            <span class="form-label">Rende</span>
+            <span class="input-suffix">
+              <input type="number" inputMode="numeric" min="1" max="30" value={draft.servings ?? 6}
+                onInput={(e) => set({ servings: Number((e.target as HTMLInputElement).value) || undefined })} />
+              <span>pratos</span>
+            </span>
+          </label>
+          <label class="field">
+            <span class="form-label">Link do modo de preparo (opcional)</span>
+            <input type="url" inputMode="url" placeholder="https://…" value={draft.link ?? ''}
+              onInput={(e) => set({ link: (e.target as HTMLInputElement).value })} />
+          </label>
+        </div>
+
         <span class="form-label">Custo</span>
         <div class="cost-pick">
           {COSTS.map((c) => (
@@ -120,7 +136,7 @@ export function ReceitaForm({ id }: { id?: string }) {
       {/* Ingredientes */}
       <div class="form-card">
         <span class="form-label">Ingredientes</span>
-        <p class="fine">Quantidade é opcional. Ingredientes com o mesmo nome se juntam na lista de compras.</p>
+        <p class="fine">Quantidades para {draft.servings ?? 6} pratos. Ingredientes com o mesmo nome se juntam na lista de compras.</p>
         <datalist id="ingredientes">
           {(ingredients ?? []).map((i) => <option key={i.id} value={i.name} />)}
         </datalist>

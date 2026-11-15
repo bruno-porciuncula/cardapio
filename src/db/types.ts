@@ -52,6 +52,10 @@ export interface Recipe extends SyncFields {
   imageId?: string;
   mealType: MealType;
   cost?: Cost;
+  /** Quantos pratos a receita rende (padrão da casa: 6). */
+  servings?: number;
+  /** Link para o modo de preparo. */
+  link?: string;
   notes?: string;
   items: RecipeItem[];
 }
@@ -61,6 +65,8 @@ export interface RecipeSnapshot {
   name: string;
   emoji?: string;
   cost?: Cost;
+  servings?: number;
+  link?: string;
   imageId?: string;
   items: Array<RecipeItem & { ingredientName: string; categoryId: string }>;
 }

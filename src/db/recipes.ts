@@ -31,6 +31,8 @@ export interface RecipeDraft {
   emoji?: string;
   mealType: MealType;
   cost?: Cost;
+  servings?: number;
+  link?: string;
   notes?: string;
   /** null remove a foto e passa a usar o emoji. */
   imageId?: string | null;
@@ -103,6 +105,9 @@ export async function saveRecipe(db: MesaDB, draft: RecipeDraft): Promise<string
     if (draft.emoji) recipe.emoji = draft.emoji; else delete recipe.emoji;
     if (draft.cost) recipe.cost = draft.cost; else delete recipe.cost;
     if (draft.notes?.trim()) recipe.notes = draft.notes.trim(); else delete recipe.notes;
+    recipe.servings = draft.servings && draft.servings > 0 ? draft.servings : 6;
+    const link = draft.link?.trim();
+    if (link) recipe.link = /^https?:\/\//.test(link) ? link : `https://${link}`; else delete recipe.link;
     if (draft.imageId === null) delete recipe.imageId;
     else if (draft.imageId) recipe.imageId = draft.imageId;
     await db.recipes.put(recipe);
@@ -127,6 +132,8 @@ export async function draftFromRecipe(db: MesaDB, id: string): Promise<RecipeDra
     emoji: r.emoji,
     mealType: r.mealType,
     cost: r.cost,
+    servings: r.servings,
+    link: r.link,
     notes: r.notes,
     imageId: r.imageId,
     items: r.items.map((it, i) => ({

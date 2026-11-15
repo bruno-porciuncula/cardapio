@@ -5,6 +5,8 @@ import { db } from '../db/db';
 import type { Category, Recipe, RecipeSnapshot } from '../db/types';
 import { useLive } from '../lib/hooks';
 import { formatQuantity } from '../lib/units';
+import { Icon } from '../ui/Icon';
+import { CostTag } from '../ui/CostTag';
 
 const MEAL_TYPE_LABEL = { almoco: 'Almoço', jantar: 'Jantar', ambos: 'Almoço e jantar' };
 
@@ -28,6 +30,9 @@ export function RecipeDetail({ recipeId, snapshot, badge, actions, onClose }: {
     const view: RecipeSnapshot = {
       name: recipe.name,
       emoji: recipe.emoji,
+      cost: recipe.cost,
+      servings: recipe.servings,
+      link: recipe.link,
       imageId: recipe.imageId,
       items: recipe.items.map((item, i) => ({
         ...item,
@@ -49,7 +54,14 @@ export function RecipeDetail({ recipeId, snapshot, badge, actions, onClose }: {
             {badge}
             {data.recipe && <span class="chip">{MEAL_TYPE_LABEL[data.recipe.mealType]}</span>}
             <span class="chip">{view.items.length} ingrediente{view.items.length === 1 ? '' : 's'}</span>
+            {view.servings && <span class="chip">🍽️ rende {view.servings} pratos</span>}
+            {!badge && <CostTag cost={view.cost} />}
           </div>
+          {view.link && (
+            <a class="btn recipe-link" href={view.link} target="_blank" rel="noopener noreferrer">
+              📖 Ver modo de preparo <Icon name="right" size={16} />
+            </a>
+          )}
           {data.recipe?.description && <p>{data.recipe.description}</p>}
           {view.items.length === 0 ? (
             <p class="note-box">Nenhum ingrediente cadastrado. Complete quando o cadastro de receitas chegar (Etapa 3).</p>
