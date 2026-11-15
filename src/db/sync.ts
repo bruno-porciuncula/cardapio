@@ -173,7 +173,8 @@ async function runSync(db: MesaDB, transport?: Transport): Promise<SyncResult> {
       for (const r of rows) if (full || r.updatedAt > lastPushAt) outgoing.push({ t, r: r as Rec['r'] });
     }
     const ws = await getMeta<number>(db, 'weekStart');
-    const wsAt = (await getMeta<number>(db, 'weekStart:updatedAt')) ?? 0;
+    // Preferência salva antes de existir o carimbo de data: vale 1, para vencer o padrão (0) dos outros aparelhos.
+    const wsAt = (await getMeta<number>(db, 'weekStart:updatedAt')) ?? 1;
     if (typeof ws === 'number' && (full || wsAt > lastPushAt)) outgoing.push({ t: 'prefs', r: { id: 'weekStart', value: ws, updatedAt: wsAt } });
 
     for (let i = 0; i < outgoing.length; i += 150) {

@@ -107,6 +107,14 @@ describe('sincronização Mac ↔ celular', () => {
     expect(second.sent).toBe(0);
   });
 
+  it('preferência antiga (sem data) também chega ao outro aparelho', async () => {
+    await mac.meta.delete('weekStart:updatedAt'); // como estava antes do carimbo existir
+    for (const d of [mac, phone]) await connectSync(d, server.config, server.transport);
+    await sync(mac);
+    await sync(phone);
+    expect(await getWeekStart(phone)).toBe(6);
+  });
+
   it('chave errada é recusada na conexão', async () => {
     await expect(connectSync(phone, { ...server.config, key: 'errada-errada-errada' }, server.transport)).rejects.toThrow(/Chave incorreta/);
   });
