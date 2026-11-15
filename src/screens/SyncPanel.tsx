@@ -89,7 +89,7 @@ export function SyncPanel() {
 
   async function share(link: string) {
     try {
-      if (navigator.share) await navigator.share({ title: 'Parear o Mesa', url: link });
+      if (navigator.share) await navigator.share({ title: 'Parear · Refeição dos porcis', url: link });
       else {
         await navigator.clipboard.writeText(link);
         setMsg({ ok: true, text: 'Link copiado.' });

@@ -20,7 +20,7 @@ function daysAgo(ts: number) {
 async function deliver(file: File): Promise<'shared' | 'downloaded' | 'cancelled'> {
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: 'Backup do Mesa' });
+      await navigator.share({ files: [file], title: 'Backup · Refeição dos porcis' });
       return 'shared';
     } catch (err) {
       if ((err as DOMException)?.name === 'AbortError') return 'cancelled';

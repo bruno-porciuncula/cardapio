@@ -37,8 +37,8 @@ export function App() {
     <div class="app">
       <nav class="nav" aria-label="Navegação principal">
         <div class="brand">
-          <span class="brand-mark" aria-hidden="true">M</span>
-          <span class="brand-name">Mesa</span>
+          <span class="brand-mark" aria-hidden="true">🍽️</span>
+          <span class="brand-name">Refeição dos porcis</span>
         </div>
         {TABS.map(([id, label, icon]) => {
           const active = tabRoute === id;

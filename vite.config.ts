@@ -48,8 +48,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Mesa · cardápio da semana',
-        short_name: 'Mesa',
+        name: 'Refeição dos porcis',
+        short_name: 'Porcis',
         description: 'Cardápio semanal e lista de compras',
         lang: 'pt-BR',
         start_url: '.',

@@ -102,7 +102,7 @@ export function parseBackup(text: string): Backup {
     throw new BackupError('O arquivo não é um backup válido (não é JSON).');
   }
   const b = raw as Partial<Backup>;
-  if (!b || b.app !== BACKUP_APP || !b.data) throw new BackupError('Este arquivo não é um backup do Mesa.');
+  if (!b || b.app !== BACKUP_APP || !b.data) throw new BackupError('Este arquivo não é um backup do Refeição dos porcis.');
   if (typeof b.schema !== 'number' || b.schema > BACKUP_SCHEMA) {
     throw new BackupError('Este backup é de uma versão mais nova do app. Atualize o app e tente de novo.');
   }

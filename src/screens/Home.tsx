@@ -49,9 +49,12 @@ export function Home() {
 
   return (
     <section class="screen">
-      <header class="screen-head">
-        <p class="eyebrow">{weekdayName(today)}, {formatDayMonth(today)}</p>
-        <h1>Mesa</h1>
+      <header class="screen-head home-head">
+        <span class="home-logo" aria-hidden="true">🍽️</span>
+        <div>
+          <p class="eyebrow">{weekdayName(today)}, {formatDayMonth(today)}</p>
+          <h1>Refeição dos porcis</h1>
+        </div>
       </header>
 
       {/* Esta semana */}

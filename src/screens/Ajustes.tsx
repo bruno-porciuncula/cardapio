@@ -36,7 +36,7 @@ export function Ajustes() {
   return (
     <section class="screen">
       <header class="screen-head">
-        <p class="eyebrow">Mesa · versão {__APP_VERSION__}</p>
+        <p class="eyebrow">Refeição dos porcis · versão {__APP_VERSION__}</p>
         <h1>Ajustes</h1>
       </header>
 

@@ -68,7 +68,7 @@ describe('backup', () => {
 
   it('recusa arquivos que não são backup do Mesa', () => {
     expect(() => parseBackup('isso não é json')).toThrow(BackupError);
-    expect(() => parseBackup('{"app":"outro","data":{}}')).toThrow(/não é um backup do Mesa/);
+    expect(() => parseBackup('{"app":"outro","data":{}}')).toThrow(/não é um backup do Refeição dos porcis/);
     expect(() => parseBackup('{"app":"mesa","schema":99,"data":{}}')).toThrow(/versão mais nova/);
     expect(() => parseBackup('{"app":"mesa","schema":2,"data":{"recipes":[{"name":"x"}]}}')).toThrow(/corrompido/);
   });
