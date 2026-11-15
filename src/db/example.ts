@@ -8,8 +8,9 @@
  * - Ids fixos "ex-…": carregar no Mac e no Android não duplica nada.
  */
 import type { MesaDB } from './db';
-import type { Ingredient, Recipe, RecipeItem, Staple, SlotKey, WeekPlan } from './types';
-import { makeDish } from './weeks';
+import type { DayPlan, Ingredient, Recipe, RecipeItem, Staple } from './types';
+import { makeDish } from './plan';
+import { addDays } from '../lib/dates';
 
 type IngDef = [id: string, name: string, categoryId: string, aliases?: string[]];
 
@@ -64,7 +65,7 @@ const RECIPES: RecipeDef[] = [
   ['misto-quente', 'Misto quente', [['pao-forma-frances'], ['mucarela'], ['peito-de-peru']]],
 ];
 
-/** Almoços de segunda (0) a domingo (6). */
+/** Almoços dos 7 dias, a partir do primeiro dia informado. */
 const LUNCHES: string[][] = [
   ['carne-panela'],
   ['berinjela-forno'],
@@ -117,9 +118,9 @@ export interface ExampleResult {
  * ingredientes que já existem ficam como estão, e almoços já preenchidos
  * são mantidos.
  */
-export async function loadExample(db: MesaDB, weekId: string): Promise<ExampleResult> {
+export async function loadExample(db: MesaDB, startDate: string): Promise<ExampleResult> {
   const now = Date.now();
-  return db.transaction('rw', [db.ingredients, db.recipes, db.weeks, db.staples], async () => {
+  return db.transaction('rw', [db.ingredients, db.recipes, db.days, db.staples], async () => {
     const result: ExampleResult = { recipesAdded: 0, ingredientsAdded: 0, slotsFilled: 0, slotsSkipped: 0 };
 
     const ingIds = new Set((await db.ingredients.toArray()).map((i) => i.id));
@@ -142,26 +143,28 @@ export async function loadExample(db: MesaDB, weekId: string): Promise<ExampleRe
 
     const ingredients = new Map((await db.ingredients.toArray()).map((i) => [i.id, i]));
     const recipes = new Map((await db.recipes.toArray()).map((r) => [r.id, r]));
-    const week: WeekPlan = (await db.weeks.get(weekId)) ?? { id: weekId, slots: {}, updatedAt: now };
 
-    LUNCHES.forEach((ids, day) => {
-      const key: SlotKey = `${day}-almoco`;
-      if (week.slots[key]?.length) {
+    for (const [i, ids] of LUNCHES.entries()) {
+      const date = addDays(startDate, i);
+      const day: DayPlan = (await db.days.get(date)) ?? { id: date, slots: {}, updatedAt: now };
+      if (!day.deleted && day.slots.almoco?.length) {
         result.slotsSkipped++;
-        return;
+        continue;
       }
       const dishes = ids
         .map((id) => recipes.get(ex(id)))
         .filter((r): r is Recipe => !!r && !r.deleted)
         .map((r) => makeDish(r, ingredients));
-      if (dishes.length) {
-        week.slots[key] = dishes;
-        result.slotsFilled++;
+      if (!dishes.length) continue;
+      if (day.deleted) {
+        day.slots = {};
+        delete day.deleted;
       }
-    });
-    week.updatedAt = now;
-    week.deleted = false;
-    await db.weeks.put(week);
+      day.slots.almoco = dishes;
+      day.updatedAt = now;
+      await db.days.put(day);
+      result.slotsFilled++;
+    }
     return result;
   });
 }

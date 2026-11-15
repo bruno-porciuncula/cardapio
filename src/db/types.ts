@@ -1,9 +1,9 @@
 /**
  * Modelo de dados do app.
  *
- * Todo registro sincronizável carrega `id` (uuid), `updatedAt` (ms) e
- * `deleted` (marca de exclusão). Assim a Etapa 3B (sync com o Drive) pode
- * mesclar Mac e Android registro a registro, sem migrar dados.
+ * Todo registro sincronizável carrega `id`, `updatedAt` (ms) e `deleted`
+ * (marca de exclusão). Assim a sincronização com o Drive pode mesclar Mac
+ * e Android registro a registro, sem migrar dados.
  */
 
 export interface SyncFields {
@@ -19,7 +19,6 @@ export interface Category extends SyncFields {
   name: string;
   /** Ordem na lista = percurso no supermercado. */
   order: number;
-  /** Cor suave usada como marcador (hex). */
   color: string;
 }
 
@@ -39,12 +38,14 @@ export interface RecipeItem {
   quantity: number | null;
   /** id de unidade de lib/units.ts; null quando não há quantidade. */
   unit: string | null;
-  /** Preparo/observação: "em cubos", "maduro"… */
+  /** Preparo/observação: "em cubos", "penne ou parafuso"… */
   note?: string;
 }
 
 export interface Recipe extends SyncFields {
   name: string;
+  /** Ícone do prato; quando vazio, é deduzido do nome. */
+  emoji?: string;
   description?: string;
   imageId?: string;
   mealType: MealType;
@@ -55,25 +56,42 @@ export interface Recipe extends SyncFields {
 /** Cópia congelada da receita no momento em que entrou no cardápio. */
 export interface RecipeSnapshot {
   name: string;
+  emoji?: string;
   imageId?: string;
   items: Array<RecipeItem & { ingredientName: string; categoryId: string }>;
 }
 
 export interface Dish {
-  /** id local do prato dentro da semana. */
+  /** id local do prato. */
   uid: string;
   recipeId: string;
   snapshot: RecipeSnapshot;
-  /** Sobra do jantar do dia anterior: não entra na lista de compras. */
+  /** Sobra de uma refeição anterior: aparece no cardápio, mas não entra na lista. */
   leftover?: boolean;
 }
 
-/** Chave do espaço: `${dia 0-6}-${refeição}`, ex.: "0-almoco" (segunda). */
-export type SlotKey = `${number}-${Meal}`;
+/**
+ * Um dia do cardápio, identificado pela data ("2026-11-14").
+ * Guardar por data (e não por "dia 0-6 da semana") permite mudar o dia em
+ * que a semana começa sem mexer em nenhum prato.
+ */
+export interface DayPlan extends SyncFields {
+  slots: Partial<Record<Meal, Dish[]>>;
+}
 
-export interface WeekPlan extends SyncFields {
-  /** id = data da segunda-feira, "2026-11-09". */
-  slots: Partial<Record<SlotKey, Dish[]>>;
+/** Item avulso da lista da semana (não vem de receita). */
+export interface ExtraItem {
+  id: string;
+  name: string;
+  quantity: number | null;
+  unit: string | null;
+  categoryId: string;
+  note?: string;
+}
+
+/** Dados da semana; id = data do primeiro dia da semana. */
+export interface WeekData extends SyncFields {
+  extras: ExtraItem[];
 }
 
 /** Itens de sempre (extras recorrentes). */

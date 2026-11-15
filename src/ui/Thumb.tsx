@@ -1,21 +1,35 @@
 import { useEffect, useState } from 'preact/hooks';
 import { db } from '../db/db';
+import { dishEmoji } from '../lib/emoji';
 
-/** Paleta suave para receitas sem foto: a cor vem do nome, sempre a mesma. */
-const TINTS = ['#E7D9C4', '#D9E4D2', '#E9D3CB', '#D6DFE6', '#E6DDEA', '#E8E2C8'];
+/** Gradientes quentes para pratos sem foto: a cor vem do nome, sempre a mesma. */
+const GRADIENTS = [
+  'linear-gradient(135deg, #FFD9A8, #FF9F6E)',
+  'linear-gradient(135deg, #FFE7A3, #F7B538)',
+  'linear-gradient(135deg, #D7F0B8, #8FCB6B)',
+  'linear-gradient(135deg, #FFC9C0, #F2706B)',
+  'linear-gradient(135deg, #F9D3E9, #D97AB3)',
+  'linear-gradient(135deg, #FFE0C2, #F28C5B)',
+];
 
-function tintFor(name: string) {
+function gradientFor(name: string) {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return TINTS[h % TINTS.length];
+  return GRADIENTS[h % GRADIENTS.length];
 }
 
-/** Miniatura da receita: foto quando existir; senão a inicial sobre cor suave. */
-export function Thumb({ name, imageId, size = 'md' }: { name: string; imageId?: string; size?: 'sm' | 'md' | 'lg' }) {
+/** Foto do prato quando existir; senão o ícone do prato sobre um gradiente quente. */
+export function Thumb({ name, emoji, imageId, size = 'md' }: {
+  name: string;
+  emoji?: string;
+  imageId?: string;
+  size?: 'xxs' | 'xs' | 'fill' | 'sm' | 'md' | 'lg' | 'hero';
+}) {
   const [url, setUrl] = useState<string>();
 
   useEffect(() => {
-    if (!imageId) return setUrl(undefined);
+    setUrl(undefined);
+    if (!imageId) return;
     let objectUrl: string | undefined;
     let cancelled = false;
     db.images.get(imageId).then((img) => {
@@ -29,10 +43,10 @@ export function Thumb({ name, imageId, size = 'md' }: { name: string; imageId?: 
     };
   }, [imageId]);
 
-  if (url) return <img class={`thumb thumb-${size}`} src={url} alt="" />;
+  if (url) return <img class={`thumb thumb-${size}`} src={url} alt="" loading="lazy" />;
   return (
-    <span class={`thumb thumb-${size} thumb-empty`} style={{ background: tintFor(name) }} aria-hidden="true">
-      {name.trim().charAt(0).toUpperCase()}
+    <span class={`thumb thumb-${size} thumb-empty`} style={{ background: gradientFor(name) }} aria-hidden="true">
+      {dishEmoji(name, emoji)}
     </span>
   );
 }

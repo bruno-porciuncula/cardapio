@@ -20,8 +20,8 @@ export function useLive<T>(query: () => Promise<T> | T, deps: unknown[] = []): T
 }
 
 /** Rota atual a partir do hash (#/cardapio). O botão voltar do Android funciona. */
-export type Route = 'cardapio' | 'refeicoes' | 'lista' | 'historico' | 'ajustes';
-const ROUTES: Route[] = ['cardapio', 'refeicoes', 'lista', 'historico', 'ajustes'];
+export type Route = 'cardapio' | 'montar' | 'refeicoes' | 'lista' | 'historico' | 'ajustes';
+const ROUTES: Route[] = ['cardapio', 'montar', 'refeicoes', 'lista', 'historico', 'ajustes'];
 
 function parseHash(): { route: Route; param?: string } {
   const [, r, param] = location.hash.split('/');

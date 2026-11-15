@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, formatWeekRange, mondayOf, todayIndex } from './dates';
+import { addDays, formatWeekRange, mondayOf, startOfWeek, todayIndex, weekDates, weekdayName } from './dates';
 import { formatQuantity } from './units';
 
 describe('datas', () => {
@@ -7,6 +7,13 @@ describe('datas', () => {
     expect(mondayOf(new Date(2026, 10, 14))).toBe('2026-11-09'); // sábado
     expect(mondayOf(new Date(2026, 10, 15))).toBe('2026-11-09'); // domingo
     expect(mondayOf(new Date(2026, 10, 16))).toBe('2026-11-16'); // segunda
+  });
+
+  it('semana começando no sábado', () => {
+    expect(startOfWeek(new Date(2026, 10, 14), 6)).toBe('2026-11-14'); // o próprio sábado
+    expect(startOfWeek('2026-11-20', 6)).toBe('2026-11-14'); // sexta
+    expect(startOfWeek('2026-11-21', 6)).toBe('2026-11-21');
+    expect(weekDates('2026-11-14').map(weekdayName)).toEqual(['Sábado', 'Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']);
   });
 
   it('soma dias atravessando mês e ano', () => {

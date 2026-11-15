@@ -3,6 +3,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { navigate, useRoute, type Route } from './lib/hooks';
 import { Icon } from './ui/Icon';
 import { Cardapio } from './screens/Cardapio';
+import { Montar } from './screens/Montar';
 import { Refeicoes } from './screens/Refeicoes';
 import { Lista } from './screens/Lista';
 import { Historico } from './screens/Historico';
@@ -35,12 +36,15 @@ export function App() {
           <span class="brand-mark" aria-hidden="true">M</span>
           <span class="brand-name">Mesa</span>
         </div>
-        {TABS.map(([id, label, icon]) => (
-          <a key={id} href={`#/${id}`} class={`nav-item ${route === id ? 'is-active' : ''}`} aria-current={route === id ? 'page' : undefined}>
+        {TABS.map(([id, label, icon]) => {
+          const active = route === id || (id === 'cardapio' && route === 'montar');
+          return (
+          <a key={id} href={`#/${id}`} class={`nav-item ${active ? 'is-active' : ''}`} aria-current={active ? 'page' : undefined}>
             <Icon name={icon} />
             <span>{label}</span>
           </a>
-        ))}
+          );
+        })}
         <a href="#/ajustes" class={`nav-item nav-settings ${route === 'ajustes' ? 'is-active' : ''}`}>
           <Icon name="settings" />
           <span>Ajustes</span>
@@ -53,6 +57,7 @@ export function App() {
 
       <main class="main">
         {route === 'cardapio' && <Cardapio weekParam={param} />}
+        {route === 'montar' && <Montar weekParam={param} />}
         {route === 'refeicoes' && <Refeicoes />}
         {route === 'lista' && <Lista />}
         {route === 'historico' && <Historico />}
