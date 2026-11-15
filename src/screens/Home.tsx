@@ -50,7 +50,7 @@ export function Home() {
   return (
     <section class="screen">
       <header class="screen-head home-head">
-        <span class="home-logo" aria-hidden="true">🍽️</span>
+        <img class="home-logo" src="icon-192.png" alt="" aria-hidden="true" />
         <div>
           <p class="eyebrow">{weekdayName(today)}, {formatDayMonth(today)}</p>
           <h1>Refeição dos porcis</h1>

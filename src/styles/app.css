@@ -785,12 +785,11 @@ a { color: inherit; }
 
 /* Nome do app na Home */
 .home-head { display: flex; align-items: center; gap: 12px; padding-right: 0; }
-.home-logo {
-  width: 54px; height: 54px; flex: none; border-radius: 16px; display: grid; place-items: center; font-size: 30px;
-  background: var(--grad-hero); box-shadow: 0 8px 18px rgba(255, 122, 80, .3);
-}
+.home-logo { width: 56px; height: 56px; flex: none; border-radius: 16px; box-shadow: 0 8px 18px rgba(255, 122, 80, .3); }
 .home-head h1 { font-size: 30px; line-height: 1.1; }
 @media (min-width: 900px) {
   .brand-mark { font-size: 20px; }
   .nav .brand-name { font-size: 18px; line-height: 1.15; }
 }
+
+.nav img.brand-mark { background: none; object-fit: cover; }
