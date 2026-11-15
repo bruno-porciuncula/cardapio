@@ -1,104 +1,58 @@
-import { Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 import { db } from '../db/db';
-import { MEALS, MEAL_LABEL, countPlannedSlots } from '../db/plan';
-import type { DayPlan, Dish, Meal } from '../db/types';
-import { formatDayMonth, weekdayShort } from '../lib/dates';
+import { MEALS } from '../db/plan';
+import type { Cost, DayPlan } from '../db/types';
 import { navigate, useLive } from '../lib/hooks';
 import { collator, normalize } from '../lib/text';
+import { CostTag } from '../ui/CostTag';
 import { Icon } from '../ui/Icon';
 import { Thumb } from '../ui/Thumb';
 import { AssignSheet } from './AssignSheet';
-import { DishSheet } from './Cardapio';
-import { PickRecipe } from './PickRecipe';
-import { WeekHeader, useWeek } from './WeekHeader';
 
-type Filter = 'todas' | 'almoco' | 'jantar';
-const FILTERS: Array<[Filter, string]> = [['todas', 'Todas'], ['almoco', 'Almoço'], ['jantar', 'Jantar']];
+type Filter = 'todas' | 'baratas' | 'almoco' | 'jantar';
+const FILTERS: Array<[Filter, string]> = [['todas', 'Todas'], ['baratas', '$ Econômicas'], ['almoco', 'Almoço'], ['jantar', 'Jantar']];
+const COST_ORDER: Record<Cost, number> = { baixo: 0, medio: 1, alto: 2 };
 
 /**
- * Montar a semana a partir do catálogo: escolha a receita e marque os dias.
- * O quadro no topo mostra a semana se formando e também aceita toques.
+ * Montar a semana pelo catálogo: toque numa receita e marque os dias.
+ * (O calendário da semana fica na outra aba.)
  */
-export function Montar({ weekParam }: { weekParam?: string }) {
-  const { today, current, start, dates } = useWeek(weekParam);
+export function MontarBody({ start, today, dates }: { start: string; today: string; dates: string[] }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('todas');
   const [assigning, setAssigning] = useState<string | null>(null);
-  const [picking, setPicking] = useState<{ date: string; meal: Meal; replaceUid?: string } | null>(null);
-  const [openDish, setOpenDish] = useState<{ date: string; meal: Meal; dish: Dish } | null>(null);
 
   const data = useLive(async () => ({
     days: await db.days.bulkGet(dates),
     recipes: (await db.recipes.toArray()).filter((r) => !r.deleted).sort((a, b) => collator.compare(a.name, b.name)),
   }), [start]);
 
-  const byDate = new Map<string, DayPlan>();
-  data?.days.forEach((d) => d && !d.deleted && byDate.set(d.id, d));
-  const planned = countPlannedSlots(data?.days ?? []);
-
-  // Quantas vezes cada receita aparece nesta semana.
   const uses = new Map<string, number>();
-  for (const d of byDate.values()) for (const m of MEALS) for (const dish of d.slots[m] ?? []) uses.set(dish.recipeId, (uses.get(dish.recipeId) ?? 0) + 1);
+  (data?.days ?? []).forEach((d?: DayPlan) => {
+    if (!d || d.deleted) return;
+    for (const m of MEALS) for (const dish of d.slots[m] ?? []) uses.set(dish.recipeId, (uses.get(dish.recipeId) ?? 0) + 1);
+  });
 
   const q = normalize(query);
-  const recipes = (data?.recipes ?? []).filter((r) =>
-    (filter === 'todas' || r.mealType === filter || r.mealType === 'ambos') && (!q || normalize(r.name).includes(q)));
-
-  const liveOpen = openDish && byDate.get(openDish.date)?.slots[openDish.meal]?.find((d) => d.uid === openDish.dish.uid);
+  const recipes = (data?.recipes ?? [])
+    .filter((r) => {
+      if (filter === 'baratas' && r.cost !== 'baixo') return false;
+      if ((filter === 'almoco' || filter === 'jantar') && r.mealType !== filter && r.mealType !== 'ambos') return false;
+      return !q || normalize(r.name).includes(q);
+    })
+    .sort((a, b) => (filter === 'todas' ? 0 : COST_ORDER[a.cost ?? 'medio'] - COST_ORDER[b.cost ?? 'medio']));
 
   return (
-    <section class="screen">
-      <WeekHeader mode="montar" start={start} current={current} planned={planned} />
-
-      {/* Quadro da semana */}
-      <div class="board" role="grid" aria-label="Semana">
-        <span />
-        {dates.map((date) => (
-          <span key={date} class={`board-day ${date === today ? 'is-today' : ''}`}>
-            <strong>{weekdayShort(date)}</strong>
-            <small>{formatDayMonth(date)}</small>
-          </span>
-        ))}
-        {MEALS.map((meal) => (
-          <Fragment key={meal}>
-            <span class={`board-meal board-meal-${meal}`} title={MEAL_LABEL[meal]}>
-              <Icon name={meal === 'almoco' ? 'sun' : 'moon'} size={16} />
-            </span>
-            {dates.map((date) => {
-              const dishes = byDate.get(date)?.slots[meal] ?? [];
-              const first = dishes[0];
-              return (
-                <button
-                  key={date}
-                  class={`board-cell ${first ? 'is-filled' : ''} ${first?.leftover ? 'is-leftover' : ''} ${date < today ? 'is-past' : ''}`}
-                  aria-label={`${weekdayShort(date)} ${MEAL_LABEL[meal]}${first ? `: ${dishes.map((d) => d.snapshot.name).join(', ')}` : ', vazio'}`}
-                  onClick={() => (first ? setOpenDish({ date, meal, dish: first }) : setPicking({ date, meal }))}
-                >
-                  {first ? (
-                    <Thumb name={first.snapshot.name} emoji={first.snapshot.emoji} imageId={first.snapshot.imageId} size="fill" />
-                  ) : (
-                    <Icon name="plus" size={16} />
-                  )}
-                  {first?.leftover && <span class="board-badge" title="sobra"><Icon name="repeat" size={11} /></span>}
-                  {dishes.length > 1 && <span class="board-more">+{dishes.length - 1}</span>}
-                </button>
-              );
-            })}
-          </Fragment>
-        ))}
-      </div>
-
+    <>
       <div class="build-head">
-        <h2 class="section-title">Escolha os pratos</h2>
-        <p class="muted">Toque numa receita e marque os dias. Tudo salva na hora.</p>
+        <p class="muted">Toque num prato e marque em quais dias ele entra. Tudo salva na hora.</p>
       </div>
 
       <label class="search">
         <Icon name="search" size={18} />
-        <input type="search" placeholder="Buscar receita" value={query} onInput={(e) => setQuery((e.target as HTMLInputElement).value)} />
+        <input type="search" placeholder="Buscar prato" value={query} onInput={(e) => setQuery((e.target as HTMLInputElement).value)} />
       </label>
-      <div class="chips" role="tablist">
+      <div class="chips chips-scroll" role="tablist">
         {FILTERS.map(([id, label]) => (
           <button key={id} role="tab" aria-selected={filter === id} class={`chip chip-toggle ${filter === id ? 'is-on' : ''}`} onClick={() => setFilter(id)}>
             {label}
@@ -118,34 +72,19 @@ export function Montar({ weekParam }: { weekParam?: string }) {
               </span>
               <span class="recipe-card-body">
                 <strong>{r.name}</strong>
+                <CostTag cost={r.cost} />
               </span>
             </button>
           );
         })}
-        {data && recipes.length === 0 && <p class="muted pad">Nenhuma receita encontrada.</p>}
+        <button class="recipe-card recipe-card-new" onClick={() => navigate('receita', 'nova')}>
+          <span class="recipe-card-new-icon"><Icon name="plus" size={28} /></span>
+          <strong>Nova receita</strong>
+        </button>
+        {data && recipes.length === 0 && <p class="muted pad">Nenhum prato encontrado.</p>}
       </div>
 
-      {planned > 0 && start === current && (
-        <div class="build-footer">
-          <button class="btn btn-primary" onClick={() => navigate('lista')}>
-            <Icon name="cart" size={18} /> Ver lista de compras
-          </button>
-        </div>
-      )}
-
       {assigning && <AssignSheet recipeId={assigning} start={start} today={today} onClose={() => setAssigning(null)} />}
-      {picking && <PickRecipe {...picking} onClose={() => setPicking(null)} />}
-      {openDish && liveOpen && (
-        <DishSheet
-          {...openDish}
-          dish={liveOpen}
-          onClose={() => setOpenDish(null)}
-          onReplace={() => {
-            setOpenDish(null);
-            setPicking({ date: openDish.date, meal: openDish.meal, replaceUid: openDish.dish.uid });
-          }}
-        />
-      )}
-    </section>
+    </>
   );
 }

@@ -1,7 +1,8 @@
 import { db, getWeekStart } from '../db/db';
+import { navigate } from '../lib/hooks';
 import type { Category } from '../db/types';
 import { MEAL_LABEL } from '../db/plan';
-import { formatWeekRange, startOfWeek, weekDates, weekdayShort } from '../lib/dates';
+import { formatWeekRange, isDateKey, startOfWeek, weekDates, weekdayShort } from '../lib/dates';
 import { useLive } from '../lib/hooks';
 import { formatQuantity } from '../lib/units';
 import { Icon } from '../ui/Icon';
@@ -15,10 +16,10 @@ interface Row {
   sources: string[];
 }
 
-export function Lista() {
+export function Lista({ weekParam }: { weekParam?: string }) {
   const data = useLive(async () => {
     const ws = await getWeekStart();
-    const start = startOfWeek(new Date(), ws);
+    const start = isDateKey(weekParam) ? startOfWeek(weekParam, ws) : startOfWeek(new Date(), ws);
     const days = (await db.days.bulkGet(weekDates(start))).filter((d) => d && !d.deleted);
     const week = await db.weeks.get(start);
     const categories = (await db.categories.toArray()).filter((c) => !c.deleted).sort((a, b) => a.order - b.order);
@@ -50,13 +51,16 @@ export function Lista() {
       detail: formatQuantity(e.quantity, e.unit), sources: e.note ? [e.note] : [],
     }));
     return { start, cooked, leftovers, fromMenu, extras, categories };
-  });
+  }, [weekParam]);
 
   if (!data) return <section class="screen" />;
   const total = data.fromMenu.length + data.extras.length;
 
   return (
     <section class="screen">
+      <div class="topbar">
+        <button class="back" onClick={() => navigate('semana', data.start)}><Icon name="left" size={20} /> Semana</button>
+      </div>
       <header class="screen-head">
         <p class="eyebrow">{formatWeekRange(data.start)}</p>
         <h1>Lista de compras</h1>

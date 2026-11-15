@@ -212,7 +212,7 @@ export function Parear({ code }: { code?: string }) {
           <>
             <h3>Pronto, aparelho conectado!</h3>
             <p class="muted">{text} Daqui pra frente tudo sincroniza sozinho.</p>
-            <a class="btn btn-primary" href="#/cardapio">Ver cardápio</a>
+            <a class="btn btn-primary" href="#/inicio">Ir para o início</a>
           </>
         ) : (
           <>

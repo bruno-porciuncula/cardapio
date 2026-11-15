@@ -14,6 +14,8 @@ export interface SyncFields {
 
 export type MealType = 'almoco' | 'jantar' | 'ambos';
 export type Meal = 'almoco' | 'jantar';
+/** Quanto a refeição pesa no bolso: $ econômica, $$ média, $$$ mais cara. */
+export type Cost = 'baixo' | 'medio' | 'alto';
 
 export interface Category extends SyncFields {
   name: string;
@@ -49,6 +51,7 @@ export interface Recipe extends SyncFields {
   description?: string;
   imageId?: string;
   mealType: MealType;
+  cost?: Cost;
   notes?: string;
   items: RecipeItem[];
 }
@@ -57,6 +60,7 @@ export interface Recipe extends SyncFields {
 export interface RecipeSnapshot {
   name: string;
   emoji?: string;
+  cost?: Cost;
   imageId?: string;
   items: Array<RecipeItem & { ingredientName: string; categoryId: string }>;
 }

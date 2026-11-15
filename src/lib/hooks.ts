@@ -19,14 +19,17 @@ export function useLive<T>(query: () => Promise<T> | T, deps: unknown[] = []): T
   return value;
 }
 
-/** Rota atual a partir do hash (#/cardapio). O botão voltar do Android funciona. */
-export type Route = 'cardapio' | 'montar' | 'refeicoes' | 'lista' | 'historico' | 'ajustes' | 'parear';
-const ROUTES: Route[] = ['cardapio', 'montar', 'refeicoes', 'lista', 'historico', 'ajustes', 'parear'];
+/** Rota atual a partir do hash (#/semana/2026-11-14/montar). O botão voltar do Android funciona. */
+export type Route = 'inicio' | 'semana' | 'cardapio' | 'receita' | 'lista' | 'ajustes' | 'parear';
+const ROUTES: Route[] = ['inicio', 'semana', 'cardapio', 'receita', 'lista', 'ajustes', 'parear'];
+/** Endereços antigos continuam abrindo no lugar certo. */
+const LEGACY: Record<string, Route> = { montar: 'semana', refeicoes: 'cardapio', historico: 'inicio' };
 
-function parseHash(): { route: Route; param?: string } {
-  const [, r, param] = location.hash.split('/');
-  const route = (ROUTES as string[]).includes(r) ? (r as Route) : 'cardapio';
-  return { route, param };
+function parseHash(): { route: Route; param?: string; sub?: string } {
+  const [, r, param, sub] = location.hash.split('/');
+  if (r && LEGACY[r]) return { route: LEGACY[r], param, sub: r === 'montar' ? 'montar' : sub };
+  const route = (ROUTES as string[]).includes(r) ? (r as Route) : 'inicio';
+  return { route, param, sub };
 }
 
 export function useRoute() {
@@ -39,6 +42,6 @@ export function useRoute() {
   return state;
 }
 
-export function navigate(route: Route, param?: string) {
-  location.hash = `#/${route}${param ? `/${param}` : ''}`;
+export function navigate(route: Route, param?: string, sub?: string) {
+  location.hash = `#/${route}${param ? `/${param}` : ''}${sub ? `/${sub}` : ''}`;
 }

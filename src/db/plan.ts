@@ -24,6 +24,7 @@ export function makeSnapshot(recipe: Recipe, ingredients: Map<string, Ingredient
     }),
   };
   if (recipe.emoji) snap.emoji = recipe.emoji;
+  if (recipe.cost) snap.cost = recipe.cost;
   if (recipe.imageId) snap.imageId = recipe.imageId;
   return snap;
 }

@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'preact/hooks';
 import { registerSW } from 'virtual:pwa-register';
-import { navigate, useRoute, type Route } from './lib/hooks';
+import { useRoute, type Route } from './lib/hooks';
 import { Icon } from './ui/Icon';
-import { Cardapio } from './screens/Cardapio';
-import { Montar } from './screens/Montar';
-import { Refeicoes } from './screens/Refeicoes';
+import { Home } from './screens/Home';
+import { Semana } from './screens/Semana';
+import { Receitas } from './screens/Receitas';
+import { ReceitaForm } from './screens/ReceitaForm';
 import { Lista } from './screens/Lista';
-import { Historico } from './screens/Historico';
 import { Ajustes } from './screens/Ajustes';
 import { Parear } from './screens/SyncPanel';
 
 const TABS: Array<[Route, string, string]> = [
-  ['cardapio', 'Cardápio', 'calendar'],
-  ['refeicoes', 'Refeições', 'book'],
-  ['lista', 'Lista', 'cart'],
-  ['historico', 'Histórico', 'history'],
+  ['inicio', 'Início', 'home'],
+  ['cardapio', 'Cardápio', 'book'],
+  ['lista', 'Compras', 'cart'],
+  ['ajustes', 'Ajustes', 'settings'],
 ];
+/** Telas internas acendem a aba de onde vieram. */
+const PARENT: Partial<Record<Route, Route>> = { semana: 'inicio', receita: 'cardapio', parear: 'ajustes' };
 
 export function App() {
-  const { route, param } = useRoute();
+  const { route, param, sub } = useRoute();
+  const tabRoute = PARENT[route] ?? route;
   const [update, setUpdate] = useState<null | (() => void)>(null);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ export function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [route]);
+  }, [route, param]);
 
   return (
     <div class="app">
@@ -38,7 +41,7 @@ export function App() {
           <span class="brand-name">Mesa</span>
         </div>
         {TABS.map(([id, label, icon]) => {
-          const active = route === id || (id === 'cardapio' && route === 'montar');
+          const active = tabRoute === id;
           return (
           <a key={id} href={`#/${id}`} class={`nav-item ${active ? 'is-active' : ''}`} aria-current={active ? 'page' : undefined}>
             <Icon name={icon} />
@@ -46,22 +49,14 @@ export function App() {
           </a>
           );
         })}
-        <a href="#/ajustes" class={`nav-item nav-settings ${route === 'ajustes' ? 'is-active' : ''}`}>
-          <Icon name="settings" />
-          <span>Ajustes</span>
-        </a>
       </nav>
 
-      <button class="settings-fab icon-btn" onClick={() => navigate('ajustes')} aria-label="Ajustes">
-        <Icon name="settings" />
-      </button>
-
       <main class="main">
-        {route === 'cardapio' && <Cardapio weekParam={param} />}
-        {route === 'montar' && <Montar weekParam={param} />}
-        {route === 'refeicoes' && <Refeicoes />}
-        {route === 'lista' && <Lista />}
-        {route === 'historico' && <Historico />}
+        {route === 'inicio' && <Home />}
+        {route === 'semana' && <Semana weekParam={param} tab={sub} />}
+        {route === 'cardapio' && <Receitas />}
+        {route === 'receita' && <ReceitaForm key={param} id={param} />}
+        {route === 'lista' && <Lista weekParam={param} />}
         {route === 'ajustes' && <Ajustes />}
         {route === 'parear' && <Parear code={param} />}
       </main>
