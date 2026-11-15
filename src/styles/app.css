@@ -470,6 +470,16 @@ a { color: inherit; }
 .week-card .muted { font-size: 14px; }
 
 /* ───────── Ajustes ───────── */
+.backup-status { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--basil); }
+.backup-status.is-stale { color: #A26100; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.import-preview {
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+  padding: 16px; border-radius: var(--r-md); background: var(--surface-2);
+}
+.import-preview .btn { align-self: stretch; }
+.fine.ok { color: var(--basil); font-weight: 600; }
+.fine.error { color: var(--tomato-dark); font-weight: 600; }
 .settings-group { gap: 12px; }
 .settings-group .btn { align-self: flex-start; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 6px; }

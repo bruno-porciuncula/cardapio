@@ -15,6 +15,8 @@ const PATHS: Record<string, string> = {
   sparkles: 'M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2ZM19 3v4M21 5h-4',
   check: 'M20 6 9 17l-5-5',
   plus: 'M12 5v14M5 12h14',
+  download: 'M12 3v12M7 10l5 5 5-5M5 21h14',
+  upload: 'M12 21V9M7 14l5-5 5 5M5 3h14',
   trash: 'M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6',
   swap: 'M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5',
   down: 'm6 9 6 6 6-6',

@@ -4,6 +4,7 @@ import { loadExample, type ExampleResult } from '../db/example';
 import { WEEKDAY_NAMES, startOfWeek } from '../lib/dates';
 import { useLive } from '../lib/hooks';
 import { Icon } from '../ui/Icon';
+import { BackupPanel } from './BackupPanel';
 
 /** Ordem de exibição: segunda … domingo. */
 const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -37,6 +38,8 @@ export function Ajustes() {
         <p class="eyebrow">Mesa · versão {__APP_VERSION__}</p>
         <h1>Ajustes</h1>
       </header>
+
+      <BackupPanel />
 
       <div class="settings-group">
         <h2 class="section-title"><span>🗓️</span> A semana começa no</h2>
@@ -97,7 +100,7 @@ export function Ajustes() {
 
       {import.meta.env.DEV && <DevSeed />}
 
-      <p class="fine center">Backup e sincronização com o Drive chegam nas próximas etapas.</p>
+      <p class="fine center">A sincronização automática com o Drive chega na próxima etapa.</p>
     </section>
   );
 }
