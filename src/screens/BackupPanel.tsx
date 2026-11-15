@@ -5,6 +5,7 @@ import {
   type Backup, type BackupSummary, type ImportMode, type ImportResult,
 } from '../db/backup';
 import { ensureDefaults } from '../db/seed';
+import { requestFullPush } from '../db/sync';
 import { useLive } from '../lib/hooks';
 import { Icon } from '../ui/Icon';
 
@@ -83,6 +84,7 @@ export function BackupPanel() {
     try {
       const r: ImportResult = await importBackup(db, pending.backup, mode);
       await ensureDefaults(db);
+      await requestFullPush(db);
       setImportMsg({
         ok: true,
         text: mode === 'substituir'

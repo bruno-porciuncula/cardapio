@@ -478,6 +478,17 @@ a { color: inherit; }
   padding: 16px; border-radius: var(--r-md); background: var(--surface-2);
 }
 .import-preview .btn { align-self: stretch; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field span { font-size: 14px; font-weight: 650; color: var(--ink-2); }
+.field input {
+  min-height: 48px; padding: 0 14px; border-radius: var(--r-sm); border: 1.5px solid var(--line);
+  background: #fff; font-size: 15px; outline: none; min-width: 0;
+}
+.field input:focus { border-color: var(--tomato); }
+.pair { align-items: center; text-align: center; }
+.pair .btn { align-self: stretch; }
+.qr { width: 220px; max-width: 70vw; padding: 10px; background: #fff; border-radius: 16px; }
+.qr svg { display: block; width: 100%; height: auto; }
 .fine.ok { color: var(--basil); font-weight: 600; }
 .fine.error { color: var(--tomato-dark); font-weight: 600; }
 .settings-group { gap: 12px; }

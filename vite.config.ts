@@ -10,7 +10,7 @@ import { basename, resolve } from 'node:path';
  * em ./backups e serve o arquivo para o celular baixar pela rede Wi-Fi.
  */
 function devBackupBridge(): Plugin {
-  const dir = resolve(__dirname, 'backups');
+  const dir = resolve(import.meta.dirname, 'backups');
   return {
     name: 'mesa-dev-backup',
     apply: 'serve',

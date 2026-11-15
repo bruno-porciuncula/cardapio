@@ -5,6 +5,7 @@ import { WEEKDAY_NAMES, startOfWeek } from '../lib/dates';
 import { useLive } from '../lib/hooks';
 import { Icon } from '../ui/Icon';
 import { BackupPanel } from './BackupPanel';
+import { SyncPanel } from './SyncPanel';
 
 /** Ordem de exibição: segunda … domingo. */
 const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -39,6 +40,7 @@ export function Ajustes() {
         <h1>Ajustes</h1>
       </header>
 
+      <SyncPanel />
       <BackupPanel />
 
       <div class="settings-group">
@@ -100,7 +102,7 @@ export function Ajustes() {
 
       {import.meta.env.DEV && <DevSeed />}
 
-      <p class="fine center">A sincronização automática com o Drive chega na próxima etapa.</p>
+      
     </section>
   );
 }

@@ -8,6 +8,7 @@ import { Refeicoes } from './screens/Refeicoes';
 import { Lista } from './screens/Lista';
 import { Historico } from './screens/Historico';
 import { Ajustes } from './screens/Ajustes';
+import { Parear } from './screens/SyncPanel';
 
 const TABS: Array<[Route, string, string]> = [
   ['cardapio', 'Cardápio', 'calendar'],
@@ -62,6 +63,7 @@ export function App() {
         {route === 'lista' && <Lista />}
         {route === 'historico' && <Historico />}
         {route === 'ajustes' && <Ajustes />}
+        {route === 'parear' && <Parear code={param} />}
       </main>
 
       {update && (

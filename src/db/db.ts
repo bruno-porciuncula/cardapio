@@ -77,6 +77,9 @@ export async function getWeekStart(d: MesaDB = db): Promise<number> {
   return typeof row?.value === 'number' ? row.value : 1;
 }
 
-export async function setWeekStart(dow: number, d: MesaDB = db): Promise<void> {
-  await d.meta.put({ key: 'weekStart', value: dow });
+export async function setWeekStart(dow: number, d: MesaDB = db, updatedAt = Date.now()): Promise<void> {
+  await d.meta.bulkPut([
+    { key: 'weekStart', value: dow },
+    { key: 'weekStart:updatedAt', value: updatedAt },
+  ]);
 }

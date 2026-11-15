@@ -5,6 +5,7 @@ import './styles/app.css';
 import { App } from './app';
 import { db, requestPersistence } from './db/db';
 import { ensureDefaults } from './db/seed';
+import { startAutoSync } from './db/sync';
 
 // No Android, o Chrome concede automaticamente quando o app está instalado.
 requestPersistence().catch(() => {});
@@ -20,4 +21,7 @@ if (import.meta.env.DEV) {
 
 ensureDefaults(db)
   .catch((err) => console.error('Falha ao preparar o banco', err))
-  .finally(() => render(<App />, document.getElementById('app')!));
+  .finally(() => {
+    render(<App />, document.getElementById('app')!);
+    startAutoSync(db);
+  });
